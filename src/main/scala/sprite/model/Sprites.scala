@@ -1,4 +1,4 @@
-package spritemodel
+package sprite.model
 
 import java.net.URL
 import java.util
@@ -17,14 +17,14 @@ object Sprites {
   def load(spritesURL: URL): Map[String, SpriteSheet] =
     parse(ConfigFactory.parseURL(spritesURL))
 
-  object TileDimension {
+  private object TileDimension {
     def unapply(o: Any): Option[Int] = o match {
       case i: Int if i > 0 ⇒ Some(i)
       case _ ⇒ Some(1)
     }
   }
 
-  object SpriteSheetDef {
+  private object SpriteSheetDef {
     def unapply(conf: (String, util.Map[String, Any])): Option[(String, URL, Int, Int)] = {
       val name = conf._1
       val m = mapAsScalaMap(conf._2)

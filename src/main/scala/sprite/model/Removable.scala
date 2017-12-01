@@ -1,4 +1,4 @@
-package spritemodel
+package sprite.model
 
 trait Removable extends HasRemovalMarker {
   protected var markedForRemoval: Boolean = false
