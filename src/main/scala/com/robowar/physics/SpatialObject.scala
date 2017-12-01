@@ -11,31 +11,32 @@ trait SpatialObject {
     (shape.bounds intersects other.shape.bounds) && (shape intersects other.shape)
 }
 
-trait Drawable { self: SpatialObject ⇒
-  def draw(offset: Point, zoom: Double, g: Graphics2D): Unit
+trait Paintable { self: SpatialObject ⇒
+  def paint(g: Graphics2D): Unit
 }
 
-object Drawable {
-  def unapply(d: SpatialObject with Drawable): Option[SpatialObject with Drawable] = Some(d)
+object Paintable {
+  def unapply(d: SpatialObject with Paintable): Option[SpatialObject with Paintable] = Some(d)
 }
 
 object SpatialObject {
   implicit def fromShape(s: Shape): SpatialObject = new GenericSpatialObject(s)
 }
 
-class GenericSpatialObject(val shape: Shape) extends SpatialObject with Drawable {
+class GenericSpatialObject(val shape: Shape) extends SpatialObject with Paintable {
   override def toString: String = shape.toString
 
-  override def draw(offset: Point, zoom: Double, g: Graphics2D): Unit = shape match {
+  override def paint(g: Graphics2D): Unit = shape match {
     case Point(x, y) ⇒
-      val s = math.max(zoom.toInt, 1)
-      g.drawOval(((x - offset.x) * zoom).toInt, ((y - offset.y) * zoom).toInt, s, s)
+      g.drawOval(x.toInt, y.toInt, 1, 1)
+
     case BoundingBox(Point(minX, minY), Point(maxX, maxY)) ⇒
-      val w = math.max(((maxX - minX) * zoom).toInt, 1)
-      val h = math.max(((maxY - minY) * zoom).toInt, 1)
-      g.drawRect(((minX - offset.x) * zoom).toInt, ((minY - offset.y) * zoom).toInt, w, h)
+      val w = math.max(math.round(maxX - minX).toInt, 1)
+      val h = math.max(math.round(maxY - minY).toInt, 1)
+      g.drawRect(minX.toInt, minY.toInt, w, h)
+
     case Circle(Point(x, y), radius) ⇒
-      val s = math.max((radius * 2 * zoom).toInt, 1)
-      g.drawOval(((x - radius - offset.x) * zoom).toInt, ((y - radius - offset.y) * zoom).toInt, s, s)
+      val r = radius.toInt
+      g.drawOval(x.toInt - r, y.toInt - r, 2 * r, 2 * r)
   }
 }

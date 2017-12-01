@@ -1,14 +1,11 @@
 package com.robowar.application
 
+import java.awt.{Point ⇒ _, _}
 import java.awt.event._
-import java.awt.{Point ⇒ AwtPoint, _}
 
-import com.robowar.actors.Debouncer
 import com.robowar.physics._
 import com.robowar.physics.SpatialMap.SpatialMapContext
 
-import akka.actor.{Actor, ActorRefFactory}
-import scala.concurrent.duration._
 
 object ArenaCanvas {
 }
@@ -63,9 +60,6 @@ class ArenaCanvas extends Canvas {
   addMouseWheelListener(mouseAdapter)
   addMouseMotionListener(mouseAdapter)
 
-  // limit frames per second to about 60.
-  //val debouncer = actorContext.actorOf(Debouncer.props[SpatialMap, SpatialMap](16.66.millis, null, (_, m) ⇒ m, receiveMap))
-
   override def paint(g: Graphics): Unit = try {
     super.paint(g)
     val g2d = g.asInstanceOf[Graphics2D]
@@ -90,10 +84,13 @@ class ArenaCanvas extends Canvas {
     g.drawRect(bx, by, bw, bh)
     g.setClip(bx, by, bw, bh)
 
+    g2d.scale(zoom, zoom)
+    g2d.translate(offsetVect.x, offsetVect.y)
+
     g2d.setColor(Color.BLACK)
 
     val objs = spatialMap.objectsNear(viewBounds)
-    for (Drawable(obj) ← objs) obj.draw(origin, zoom, g2d)
+    for (Paintable(obj) ← objs) obj.paint(g2d)
 
   } catch {
     case t: Throwable ⇒ System.err.println(t.getStackTraceString)
