@@ -8,8 +8,14 @@ import javax.imageio.ImageIO
 
 package object model {
 
-  case class Dimension[T](w: T, h: T)
-  case class Rect[T](x: T, y: T, w: T, h: T)
+  trait Point[T] { def x: T; def y: T }
+  trait Dimension[T] { def w: T; def h: T }
+  trait Rect[T] extends Point[T] with Dimension[T]
+  trait Circle[T] extends Point[T] { def r: T }
+
+  case class IPoint(x: Int, y: Int) extends Point[Int]
+  case class IDim(w: Int, h: Int) extends Dimension[Int]
+  case class IRect(x: Int, y: Int, w: Int, h: Int) extends Rect[Int]
 
   case class OutlineCircle(color: Color, radius: Int) {
     def paint(g: Graphics2D, x: Int, y: Int): Unit = if (radius > 0) {
@@ -24,5 +30,17 @@ package object model {
 
   @throws[IOException]
   def loadImage(imageUrl: URL): BufferedImage = ImageIO.read(imageUrl)
+
+  trait HasRemovalMarker {
+    def isMarkedForRemoval: Boolean
+  }
+
+  trait Removable extends HasRemovalMarker {
+    protected var markedForRemoval: Boolean = false
+
+    def markForRemoval: Unit = markedForRemoval = true
+
+    override def isMarkedForRemoval: Boolean = markedForRemoval
+  }
 
 }
