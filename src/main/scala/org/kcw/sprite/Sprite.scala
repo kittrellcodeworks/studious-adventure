@@ -1,4 +1,4 @@
-package sprite.model
+package org.kcw.sprite
 
 import java.awt.Graphics2D
 
@@ -11,7 +11,7 @@ import java.awt.Graphics2D
   *
   *
   */
-trait Sprite extends GraphicEffect with Removable {
+trait Sprite extends GraphicEffect {
 
   private var mCurTileID = 0
 
@@ -35,7 +35,6 @@ trait Sprite extends GraphicEffect with Removable {
     * Paints the Sprite's current tile to the target graphics using the specified translation/scaling transform
     *
     * @param g the target graphics
-    * @param tx a transform describing the current view of the sprite's containing coordinate system (the world)
     */
   def paint(g: Graphics2D): Unit = {
     spriteSheet.paint(g, currentSpriteTileId, x, y)

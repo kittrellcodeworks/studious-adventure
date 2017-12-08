@@ -1,4 +1,4 @@
-package com.robowar.physics
+package org.kcw.physics
 
 import java.awt.Graphics2D
 

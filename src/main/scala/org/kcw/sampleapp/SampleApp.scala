@@ -1,17 +1,13 @@
-package com.robowar
-package application
+package org.kcw.sampleapp
 
-import java.awt.event.{WindowAdapter, WindowEvent, WindowListener}
+import java.awt.BorderLayout
+import java.awt.event.{WindowAdapter, WindowEvent}
+import javax.swing.{JFrame, UIManager, WindowConstants}
 
-import com.typesafe.config.ConfigFactory
-import java.awt.{BorderLayout, Canvas, Toolkit}
-import javax.swing.{JFrame, JLabel, UIManager, WindowConstants}
-
-import akka.actor._
-import scala.util.control.NonFatal
 import scala.compat.Platform.EOL
+import scala.util.control.NonFatal
 
-object Robowar extends App {
+object SampleApp extends App {
 
   private class ExceptionHandler extends Thread.UncaughtExceptionHandler
   {
@@ -22,27 +18,9 @@ object Robowar extends App {
     }
   }
 
-  private class Terminator(app: ActorRef) extends Actor with ActorLogging {
-    context watch app
-    def receive = {
-      case Terminated(_) ⇒
-        context.system.terminate()
-        System.exit(0)
-    }
-  }
-
   Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler)
 
-  val system = ActorSystem("Main")
-
-  // Lazy in order to catch initialization exceptions in the `try`, below, but still be accessible
-  private lazy val app = system.actorOf(Props(classOf[actors.Application]), "app")
-  private lazy val terminator = system.actorOf(Props(classOf[Terminator], app), "app-terminator")
-
   try {
-
-    terminator // initialize the actors
-
     System.setProperty("apple.laf.useScreenMenuBar", "true")
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
 
@@ -61,10 +39,10 @@ object Robowar extends App {
     frame.setVisible(true)
 
   } catch {
-    case NonFatal(e) ⇒ system.terminate(); throw e
+    case NonFatal(e) ⇒ e.printStackTrace; System.exit(1)
   }
 
   def exit(): Unit = {
-    system.stop(app)
+    System.exit(0)
   }
 }

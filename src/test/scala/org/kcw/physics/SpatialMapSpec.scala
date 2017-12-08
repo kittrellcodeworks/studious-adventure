@@ -1,6 +1,6 @@
-package com.robowar.physics
+package org.kcw.physics
 
-import com.robowar.physics.SpatialMap.SpatialMapContext
+import org.kcw.physics.SpatialMap.SpatialMapContext
 import org.scalatest._
 
 class SpatialMapSpec extends WordSpec with Matchers {

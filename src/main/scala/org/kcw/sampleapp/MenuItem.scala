@@ -1,4 +1,4 @@
-package com.robowar.application
+package org.kcw.sampleapp
 
 import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing.{JMenuItem, KeyStroke}

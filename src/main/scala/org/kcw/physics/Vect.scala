@@ -1,4 +1,4 @@
-package com.robowar.physics
+package org.kcw.physics
 
 /**
   * Vects (Vectors, really, but we don't want to clash with the scala collection name) can represent Velocity,

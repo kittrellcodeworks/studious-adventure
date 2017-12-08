@@ -1,4 +1,6 @@
-package com.robowar.physics
+package org.kcw.physics
+
+import scala.language.postfixOps
 
 sealed trait Shape {
   type Self

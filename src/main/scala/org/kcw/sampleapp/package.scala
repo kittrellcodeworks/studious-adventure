@@ -1,9 +1,9 @@
-package com.robowar
+package org.kcw
 
 import java.awt.Toolkit
 import java.awt.event.{MouseAdapter, MouseEvent}
 
-package object application {
+package object sampleapp {
 
   val AppName = "Robowar"
   val MenuShortcutKeyMask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()

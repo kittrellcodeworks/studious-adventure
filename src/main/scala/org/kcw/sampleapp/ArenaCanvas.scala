@@ -1,10 +1,10 @@
-package com.robowar.application
+package org.kcw.sampleapp
 
-import java.awt.{Point ⇒ _, _}
 import java.awt.event._
+import java.awt.{Point ⇒ _, _}
 
-import com.robowar.physics._
-import com.robowar.physics.SpatialMap.SpatialMapContext
+import org.kcw.physics.SpatialMap.SpatialMapContext
+import org.kcw.physics._
 
 
 object ArenaCanvas {

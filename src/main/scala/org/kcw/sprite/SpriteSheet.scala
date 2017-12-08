@@ -1,4 +1,4 @@
-package sprite.model
+package org.kcw.sprite
 
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage

@@ -1,12 +1,12 @@
-package sprite
+package org.kcw
 
-import java.awt.image.{AffineTransformOp, BufferedImage}
+import java.awt.image.BufferedImage
 import java.awt._
 import java.io.{File, IOException}
 import java.net.URL
 import javax.imageio.ImageIO
 
-package object model {
+package object sprite {
 
   trait Point[T] { def x: T; def y: T }
   trait Dimension[T] { def w: T; def h: T }
@@ -30,17 +30,5 @@ package object model {
 
   @throws[IOException]
   def loadImage(imageUrl: URL): BufferedImage = ImageIO.read(imageUrl)
-
-  trait HasRemovalMarker {
-    def isMarkedForRemoval: Boolean
-  }
-
-  trait Removable extends HasRemovalMarker {
-    protected var markedForRemoval: Boolean = false
-
-    def markForRemoval: Unit = markedForRemoval = true
-
-    override def isMarkedForRemoval: Boolean = markedForRemoval
-  }
 
 }

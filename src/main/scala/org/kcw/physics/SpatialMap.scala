@@ -1,4 +1,4 @@
-package com.robowar.physics
+package org.kcw.physics
 
 import scala.collection.mutable
 import SpatialMap._

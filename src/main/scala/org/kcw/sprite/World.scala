@@ -1,14 +1,14 @@
-package sprite.model
+package org.kcw.sprite
 
 import java.awt.Graphics2D
 
-trait World {
+trait World extends GraphicEffect {
 
   def origin: Point[Double]
   def zoom: Double
   def displayableEffects: Iterable[GraphicEffect]
 
-  def paint(g: Graphics2D): Unit = {
+  override def paint(g: Graphics2D): Unit = {
     val o = origin
     val z = zoom
     val tx = g.getTransform
