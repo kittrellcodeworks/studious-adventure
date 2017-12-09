@@ -8,13 +8,13 @@ trait World extends GraphicEffect {
   def zoom: Double
   def displayableEffects: Iterable[GraphicEffect]
 
-  override def paint(g: Graphics2D): Unit = {
+  override def paintEffect(g: Graphics2D): Unit = {
     val o = origin
     val z = zoom
     val tx = g.getTransform
     g.scale(z, z)
-    g.translate(o.x, o.y)
-    for (ge ← displayableEffects) ge.paint(g)
+    g.translate(-o.x, -o.y)
+    for (ge ← displayableEffects) ge.paintEffect(g)
     g.setTransform(tx) // put the graphixs transform back the way it was.
   }
 

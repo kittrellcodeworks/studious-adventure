@@ -4,9 +4,10 @@ import java.net.URL
 import java.util
 import javax.imageio.ImageIO
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValue, ConfigValueType}
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.util.Try
 
 object Sprites {
@@ -25,26 +26,47 @@ object Sprites {
   }
 
   private object SpriteSheetDef {
-    def unapply(conf: (String, util.Map[String, Any])): Option[(String, URL, Int, Int)] = {
-      val name = conf._1
-      val m = conf._2.asScala
-      for {
-        url ← m.get("url").flatMap(s ⇒ Try(new URL(s.toString)).fold(
-          _ ⇒ {System.err.println(s"Sprites:parse: bad url for sprite sheet '$name'"); None},
-          Some(_)
-        ))
-        TileDimension(tilesAcross) ← m.get("x")
-        TileDimension(tilesDown) ← m.get("y")
-      } yield (name, url, tilesAcross, tilesDown)
+    def unapply(conf: util.Map.Entry[String, AnyRef]): Option[(String, URL, Int, Int, Int)] = {
+      val name = conf.getKey
+      conf.getValue match {
+        case v: util.Map[_, _] ⇒
+          val m = v.asInstanceOf[util.Map[String, Any]].asScala
+          for {
+            url ← m.get("url").flatMap { s ⇒
+              val ss = s.toString
+              if (ss.contains(":")) {
+                Try(new URL(ss)).map(Option(_)).recover {
+                  case e ⇒ System.err.println(s"Sprites:parse: bad url ($ss) for sprite sheet '$name'")
+                    e.printStackTrace
+                    None
+                }.get
+              }
+              else {
+                Option(getClass.getResource("/"+ss))
+              }
+            }
+            TileDimension(tilesAcross) ← m.get("x")
+            TileDimension(tilesDown) ← m.get("y")
+            max = tilesAcross * tilesDown
+            count = m.get("count").collect { case i: Int if i > 0 && i < tilesAcross * tilesDown ⇒ i } getOrElse max
+          } yield (name, url, tilesAcross, tilesDown, count)
+        case _ ⇒ None
+      }
     }
   }
 
-  private def parse(spritesConfig: Config): Map[String, SpriteSheet] = (for {
-    SpriteSheetDef(name, imgUrl, tilesAcross, tilesDown) <- spritesConfig.root.unwrapped.asScala
-    img ← Try(ImageIO.read(imgUrl)).fold(
-      e ⇒ {System.err.println(s"Sprites:parse: error reading image for sprite sheet '$name': ${e.getMessage}"); None},
-      Some(_)
-    )
-  } yield name → SpriteSheet(name, img, tilesAcross, tilesDown)).toMap
+  private def parse(spritesConfig: Config): Map[String, SpriteSheet] = {
+    val conf = spritesConfig.root.unwrapped.entrySet.asScala.toSeq
+    val x = for {
+      SpriteSheetDef(name, imgUrl, tilesAcross, tilesDown, count) <- conf
+      img ← Try(ImageIO.read(imgUrl)).map(Some(_)).recover {
+        case e ⇒
+          System.err.println(s"Sprites:parse: error reading image for sprite sheet '$name': ${e.getMessage}")
+          e.printStackTrace
+          None
+      }.get
+    } yield name → SpriteSheet(name, img, tilesAcross, tilesDown, count)
+    x.toMap
+  }
 
 }

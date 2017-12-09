@@ -28,17 +28,17 @@ trait Sprite extends GraphicEffect {
   def spriteSheet: SpriteSheet = SpriteSheet.empty
   def currentSpriteTileId: Int = mCurTileID
   def outline: Option[OutlineCircle] = None
-  def width: Int = spriteSheet.tileWidth
-  def height: Int = spriteSheet.tileHeight
 
   /**
     * Paints the Sprite's current tile to the target graphics using the specified translation/scaling transform
     *
     * @param g the target graphics
     */
-  def paint(g: Graphics2D): Unit = {
-    spriteSheet.paint(g, currentSpriteTileId, x, y)
-    outline.foreach(_.paint(g, x, y))
+  def paintEffect(g: Graphics2D): Unit = {
+    val xx = x
+    val yy = y
+    spriteSheet.paint(g, currentSpriteTileId, xx, yy)
+    outline.foreach(_.paint(g, xx, yy))
   }
 
   def currentSpriteTileId_=(tileId: Int): Unit =

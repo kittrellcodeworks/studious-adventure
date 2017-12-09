@@ -2,6 +2,8 @@ package org.kcw.physics
 
 import java.awt.Graphics2D
 
+import org.kcw.sprite.GraphicEffect
+
 import scala.language.implicitConversions
 
 trait SpatialObject {
@@ -11,22 +13,18 @@ trait SpatialObject {
     (shape.bounds intersects other.shape.bounds) && (shape intersects other.shape)
 }
 
-trait Paintable { self: SpatialObject ⇒
-  def paint(g: Graphics2D): Unit
-}
-
 object Paintable {
-  def unapply(d: SpatialObject with Paintable): Option[SpatialObject with Paintable] = Some(d)
+  def unapply(d: SpatialObject with GraphicEffect): Option[SpatialObject with GraphicEffect] = Some(d)
 }
 
 object SpatialObject {
   implicit def fromShape(s: Shape): SpatialObject = new GenericSpatialObject(s)
 }
 
-class GenericSpatialObject(val shape: Shape) extends SpatialObject with Paintable {
+class GenericSpatialObject(val shape: Shape) extends SpatialObject with GraphicEffect {
   override def toString: String = shape.toString
 
-  override def paint(g: Graphics2D): Unit = shape match {
+  override def paintEffect(g: Graphics2D): Unit = shape match {
     case Point(x, y) ⇒
       g.drawOval(x.toInt, y.toInt, 1, 1)
 

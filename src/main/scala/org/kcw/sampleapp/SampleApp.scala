@@ -21,7 +21,9 @@ object SampleApp extends App {
   Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler)
 
   try {
+    // This doesn't seem to work.
     System.setProperty("apple.laf.useScreenMenuBar", "true")
+
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
 
     val frame = new JFrame(AppName)
@@ -39,7 +41,7 @@ object SampleApp extends App {
     frame.setVisible(true)
 
   } catch {
-    case NonFatal(e) ⇒ e.printStackTrace; System.exit(1)
+    case NonFatal(e) ⇒ e.printStackTrace; exit()
   }
 
   def exit(): Unit = {

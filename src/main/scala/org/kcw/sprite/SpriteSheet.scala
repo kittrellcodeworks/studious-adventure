@@ -14,7 +14,7 @@ case class SpriteSheet(name: String, tileWidth: Int, tileHeight: Int, tiles: Ind
   def size: Int = tiles.size
 
   def paint(g: Graphics2D, tile: Int, x: Int, y: Int): Unit = if (tiles.isDefinedAt(tile)) {
-    g.drawImage(tiles(tile), x - halfWidth, y - halfHeight, tileWidth, tileHeight, null)
+    g.drawImage(tiles(tile), x - halfWidth, y - halfHeight, null)
   }
 }
 
@@ -23,13 +23,15 @@ object SpriteSheet {
     override def paint(g: Graphics2D, tile: Int, x: Int, y: Int): Unit = { }
   }
 
-  def apply(name: String, srcImage: BufferedImage, tilesAcross: Int, tilesHigh: Int): SpriteSheet = {
-    val tileWidth = srcImage.getWidth / tilesAcross
-    val tileHeight = srcImage.getHeight / tilesHigh
+  def apply(name: String, srcImage: BufferedImage, tilesAcross: Int, tilesHigh: Int, count: Int = Int.MaxValue): SpriteSheet = {
+    val tileWidth: Int = srcImage.getWidth / tilesAcross
+    val tileHeight: Int = srcImage.getHeight / tilesHigh
+    val max: Int = math.min(count, tileWidth * tileHeight)
 
     val tiles = for {
-      k ← 0 to tilesHigh
-      m ← 0 to tilesAcross
+      k ← 0 until tilesHigh
+      m ← 0 until tilesAcross
+      if k * tilesAcross + m < max
     } yield srcImage.getSubimage(m * tileWidth, k * tileHeight, tileWidth, tileHeight)
 
     SpriteSheet(name, tileWidth, tileHeight, tiles)

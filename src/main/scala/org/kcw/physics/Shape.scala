@@ -1,4 +1,5 @@
-package org.kcw.physics
+package org.kcw
+package physics
 
 import scala.language.postfixOps
 
@@ -12,7 +13,7 @@ sealed trait Shape {
   def bounds: BoundingBox
 }
 
-case class Point(x: Double, y: Double) extends Shape {
+case class Point(x: Double, y: Double) extends Shape with sprite.Point[Double] {
   type Self = Point
 
   override def +(v: Vect): Point = Point(x + v.x, y + v.y)

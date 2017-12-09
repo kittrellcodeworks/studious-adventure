@@ -47,8 +47,8 @@ object SpatialMap {
   }
 
   // NOTE: gridSize should be larger than the diameter of most objects
-  class SpatialMapBuilder private(ctx: SpatialMapContext, from: Option[SpatialMap] = None)
-    extends mutable.ReusableBuilder[SpatialObject, SpatialMap] with mutable.Cloneable[SpatialMapBuilder] {
+  class SpatialMapBuilder[T <: SpatialObject] private(ctx: SpatialMapContext, from: Option[SpatialMap[T]] = None)
+    extends mutable.ReusableBuilder[T, SpatialMap[T]] with mutable.Cloneable[SpatialMapBuilder[T]] {
 
     require(from.forall(_.ctx == ctx), "If a SpatialMap is provided to a builder, the SpatialMapContext should match!")
 
@@ -61,13 +61,13 @@ object SpatialMap {
       *
       * @param existing An existing "base" SpatialMap
       */
-    def this(existing: SpatialMap) = this(existing.ctx, Some(existing))
+    def this(existing: SpatialMap[T]) = this(existing.ctx, Some(existing))
 
-    protected var table: Array[Set[SpatialObject]] = from.map(_.table.toArray).getOrElse(Array.fill(ctx.bucketCount)(Set.empty))
-    protected var entries: Map[SpatialObject, Set[Int]] = from.map(_.entries).getOrElse(Map.empty)
-    protected var oob: Set[SpatialObject] = from.map(_.oob).getOrElse(Set.empty)
+    protected var table: Array[Set[T]] = from.map(_.table.toArray).getOrElse(Array.fill(ctx.bucketCount)(Set.empty))
+    protected var entries: Map[T, Set[Int]] = from.map(_.entries).getOrElse(Map.empty)
+    protected var oob: Set[T] = from.map(_.oob).getOrElse(Set.empty)
 
-    override def +=(elem: SpatialObject): SpatialMapBuilder.this.type = {
+    override def +=(elem: T): SpatialMapBuilder.this.type = {
       val b = elem.shape.bounds
       val hs = ctx.hash(b) // .filter(tb.isDefinedAt)
       entries = entries.updated(elem, hs)
@@ -82,32 +82,32 @@ object SpatialMap {
       oob = from.map(_.oob).getOrElse(Set.empty)
     }
 
-    override def result(): SpatialMap = new SpatialMap(ctx, entries, table, oob)
+    override def result(): SpatialMap[T] = new SpatialMap(ctx, entries, table, oob)
 
-    def mark(): SpatialMapBuilder = new SpatialMapBuilder(this.result())
+    def mark(): SpatialMapBuilder[T] = new SpatialMapBuilder(this.result())
   }
 
-  def newBuilder(ctx: SpatialMapContext): mutable.Builder[SpatialObject, SpatialMap] =
-    new SpatialMapBuilder(ctx)
+  def newBuilder[T <: SpatialObject](ctx: SpatialMapContext): mutable.Builder[T, SpatialMap[T]] =
+    new SpatialMapBuilder[T](ctx)
 
-  def apply(ctx: SpatialMapContext, obj: SpatialObject*): SpatialMap = {
-    val b = newBuilder(ctx)
+  def apply[T <: SpatialObject](ctx: SpatialMapContext, obj: T*): SpatialMap[T] = {
+    val b = newBuilder[T](ctx)
     for (o ← obj) b += o
     b.result
   }
 }
 
 
-class SpatialMap private(val ctx: SpatialMapContext,
-                         private val entries: Map[SpatialObject, Set[Int]],
-                         private val table: IndexedSeq[Set[SpatialObject]],
+class SpatialMap[T <: SpatialObject] private(val ctx: SpatialMapContext,
+                         private val entries: Map[T, Set[Int]],
+                         private val table: IndexedSeq[Set[T]],
                          // will not be included in collision detections
-                         private val oob: Set[SpatialObject]
+                         private val oob: Set[T]
                         ) {
 
   def size: Int = table.size
 
-  override def toString(): String = {
+  override def toString: String = {
     table.zipWithIndex.map {
       case (es, i) ⇒
         val estr = es.map(_.shape.toString).mkString("[",",","]")
@@ -119,25 +119,25 @@ class SpatialMap private(val ctx: SpatialMapContext,
 
   // TODO: real-time collision detection with velocities. -- this is unnecessary for now.
 
-  def outOfBounds: Set[SpatialObject] = oob
+  def outOfBounds: Set[T] = oob
 
-  def objectsInCell(i: Int): Set[SpatialObject] = table(i)
+  def objectsInCell(i: Int): Set[T] = table(i)
 
   def locationOf(bounds: BoundingBox): Set[Int] = ctx hash bounds
 
-  def locationOf(obj: SpatialObject): Set[Int] =
+  def locationOf(obj: T): Set[Int] =
     entries.getOrElse(obj, ctx.hash(obj.shape.bounds))
 
-  def objectsNear(bounds: BoundingBox): Set[SpatialObject] =
+  def objectsNear(bounds: BoundingBox): Set[T] =
     locationOf(bounds) flatMap table
 
-  def objectsNear(obj: SpatialObject): Set[SpatialObject] =
+  def objectsNear(obj: T): Set[T] =
     locationOf(obj).flatMap(table(_) - obj)
 
-  def objectsCollidingWith(obj: SpatialObject): Iterable[SpatialObject] =
+  def objectsCollidingWith(obj: T): Iterable[T] =
     objectsNear(obj).filter(_.intersects(obj))
 
-  def + (obj: SpatialObject): SpatialMap = {
+  def +(obj: T): SpatialMap[T] = {
     val newBounds = obj.shape.bounds
     val newHashes = ctx.hash(newBounds)
     val prevHashes = entries.getOrElse(obj, Set.empty)
@@ -154,7 +154,7 @@ class SpatialMap private(val ctx: SpatialMapContext,
     new SpatialMap(ctx, newEntries, newTable, newOoB)
   }
 
-  def - (obj: SpatialObject): SpatialMap = {
+  def - (obj: T): SpatialMap[T] = {
     val prevHashes = entries.getOrElse(obj, Set.empty)
     val newTable = IndexedSeq.tabulate(ctx.bucketCount) { i ⇒
       val old = table(i)
@@ -164,5 +164,5 @@ class SpatialMap private(val ctx: SpatialMapContext,
     new SpatialMap(ctx, entries - obj, newTable, oob - obj)
   }
 
-  def asTemplate(): SpatialMapBuilder = new SpatialMapBuilder(this)
+  def asTemplate(): SpatialMapBuilder[T] = new SpatialMapBuilder(this)
 }
