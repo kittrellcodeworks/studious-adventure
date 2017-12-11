@@ -123,19 +123,28 @@ class SpatialMap[T <: SpatialObject] private(val ctx: SpatialMapContext,
 
   def objectsInCell(i: Int): Set[T] = table(i)
 
-  def locationOf(bounds: BoundingBox): Set[Int] = ctx hash bounds
+  def locationOf(s: Shape): Set[Int] = ctx hash s.bounds
 
   def locationOf(obj: T): Set[Int] =
     entries.getOrElse(obj, ctx.hash(obj.shape.bounds))
 
-  def objectsNear(bounds: BoundingBox): Set[T] =
-    locationOf(bounds) flatMap table
+  def objectsNear(s: Shape): Set[T] =
+    locationOf(s) flatMap table
 
   def objectsNear(obj: T): Set[T] =
     locationOf(obj).flatMap(table(_) - obj)
 
-  def objectsCollidingWith(obj: T): Iterable[T] =
-    objectsNear(obj).filter(_.intersects(obj))
+  private def intersects(set: Set[T], shape: Shape): Iterable[T] = {
+    val bb = shape.bounds
+    set filter { so ⇒
+      val s = so.shape
+      s.bounds.intersects(bb) && s.intersects(shape)
+    }
+  }
+
+  def objectsCollidingWith(s: Shape): Iterable[T] = intersects(objectsNear(s), s)
+
+  def objectsCollidingWith(obj: T): Iterable[T] = intersects(objectsNear(obj), obj.shape)
 
   def +(obj: T): SpatialMap[T] = {
     val newBounds = obj.shape.bounds

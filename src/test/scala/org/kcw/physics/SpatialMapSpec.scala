@@ -103,7 +103,7 @@ class SpatialMapSpec extends WordSpec with Matchers {
     "not detect collisions outside of the map bounds" in {
       val c = Circle(Point(11, 120), 3)
       // validate that c intercests an oob point
-      c.intersects(obj8) shouldBe true
+      c.intersects(obj8.shape) shouldBe true
       sm.objectsCollidingWith(c).size shouldBe 0
     }
   }

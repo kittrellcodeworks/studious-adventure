@@ -10,7 +10,7 @@ sealed trait Shape {
 
   def intersects(other: Shape): Boolean
   def contains(point: Point): Boolean
-  def bounds: BoundingBox
+  val bounds: BoundingBox
 }
 
 case class Point(x: Double, y: Double) extends Shape with sprite.Point[Double] {
@@ -25,7 +25,7 @@ case class Point(x: Double, y: Double) extends Shape with sprite.Point[Double] {
   override def contains(point: Point): Boolean =
     math.abs(x - point.x) < tolerance && math.abs(y - point.y) < tolerance
 
-  override def bounds: BoundingBox = BoundingBox(this, this)
+  override lazy val bounds: BoundingBox = BoundingBox(this, this)
 
   def distanceTo(point: Point): Vect = Vect(point.x - x, point.y - y)
 
@@ -64,7 +64,7 @@ case class BoundingBox(min: Point, max: Point) extends Shape {
   override def contains(point: Point): Boolean =
     max.y + tolerance > point.y && max.x + tolerance > point.x && min.y < point.y + tolerance && min.x < point.x + tolerance
 
-  override def bounds: BoundingBox = this
+  override val bounds: BoundingBox = this
 
   def & (other: BoundingBox): Option[BoundingBox] = {
     if (Collider(this, other))
@@ -90,7 +90,7 @@ case class Circle(origin: Point, radius: Double) extends Shape {
   override def contains(point: Point): Boolean =
     (origin distanceTo point magnitudeSquared) < radius * radius
 
-  override def bounds: BoundingBox =
+  override lazy val bounds: BoundingBox =
     BoundingBox(Point(origin.x - radius, origin.y - radius), Point(origin.x + radius, origin.y + radius))
 
   override def equals(obj: Any): Boolean = obj match {

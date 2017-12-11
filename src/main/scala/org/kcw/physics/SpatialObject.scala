@@ -8,9 +8,6 @@ import scala.language.implicitConversions
 
 trait SpatialObject {
   def shape: Shape // for specific collision phase
-
-  final def intersects(other: SpatialObject): Boolean =
-    (shape.bounds intersects other.shape.bounds) && (shape intersects other.shape)
 }
 
 object Paintable {
