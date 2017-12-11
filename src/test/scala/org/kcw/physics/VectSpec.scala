@@ -43,15 +43,6 @@ class VectSpec extends WordSpec with Matchers {
       Vect(10, 20).projectedMagnitude(Vect(-1, -1)) shouldBe -15 * math.sqrt(2) +- tolerance
     }
 
-    "project correctly" in {
-      // perpendicular lines should have 0 projection
-      Vect(100, 0).project(Vect(0, -10)) shouldBe Vect.zero
-
-      v1.project(Vect(-1, 0)) shouldBe Vect(3, 0)
-
-      Vect(10, 20).project(Vect(-1, -1)) shouldBe Vect(15, 15)
-    }
-
     "rotate clockwise" in {
       v1.rotate90cw shouldBe Vect(4, -3)
       v2.rotate90cw shouldBe Vect(-12, -5)
@@ -62,6 +53,18 @@ class VectSpec extends WordSpec with Matchers {
       v1.rotate90ccw shouldBe Vect(-4, 3)
       v2.rotate90ccw shouldBe Vect(12, 5)
       v3.rotate90ccw shouldBe Vect(15, -8)
+    }
+
+    "project correctly" in {
+      // perpendicular lines should have 0 projection
+      Vect(100, 0).project(Vect(0, -10)) shouldBe Vect.zero
+
+      val v2b = v2.rotate90cw
+      v2.project(v2b) shouldBe Vect.zero
+
+      v1.project(Vect(-1, 0)) shouldBe Vect(3, 0)
+
+      Vect(10, 20).project(Vect(-1, -1)) shouldBe Vect(15, 15)
     }
 
   }

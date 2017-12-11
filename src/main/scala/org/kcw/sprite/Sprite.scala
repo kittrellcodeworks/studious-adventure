@@ -34,7 +34,7 @@ trait Sprite extends GraphicEffect {
     *
     * @param g the target graphics
     */
-  def paintEffect(g: Graphics2D): Unit = {
+  override def paintEffect(g: Graphics2D): Unit = {
     val xx = x
     val yy = y
     spriteSheet.paint(g, currentSpriteTileId, xx, yy)
