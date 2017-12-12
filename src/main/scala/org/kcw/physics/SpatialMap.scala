@@ -15,7 +15,7 @@ object SpatialMap {
     private[physics] val bucketsAcrossY: Int = h / gridSize
     private[physics] val bucketHeight: Double = (h + 1.0D) / bucketsAcrossY
     private[physics] val yHashFactor: Double = 1.0D / bucketHeight
-    private[physics] val bucketCount: Int = (w / gridSize) * (h / gridSize) // NOT commutable due to remainder truncation.
+    private[physics] val bucketCount: Int = bucketsAcrossX * bucketsAcrossY
 
     private[physics] def hash(p: Point): Int = {
       // TODO -- this isn't very robust - out-of-bounds points don't hash correctly.

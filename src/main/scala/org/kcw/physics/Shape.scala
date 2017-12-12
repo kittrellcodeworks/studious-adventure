@@ -59,6 +59,7 @@ case class BoundingBox(min: Point, max: Point) extends Shape {
     case p: Point ⇒ contains(p)
     case b: BoundingBox ⇒ Collider(this, b)
     case c: Circle ⇒ Collider(this, c)
+    case r: Ray ⇒ Collider(this, r)
   }
 
   override def contains(point: Point): Boolean =
@@ -85,6 +86,7 @@ case class Circle(origin: Point, radius: Double) extends Shape {
     case p: Point ⇒ contains(p)
     case b: BoundingBox ⇒ Collider(b, this)
     case c: Circle ⇒ Collider(this, c)
+    case r: Ray ⇒ Collider(this, r)
   }
 
   override def contains(point: Point): Boolean =
@@ -96,5 +98,39 @@ case class Circle(origin: Point, radius: Double) extends Shape {
   override def equals(obj: Any): Boolean = obj match {
     case Circle(o, r) ⇒ origin == o && math.abs(radius - r) < tolerance
     case _ ⇒ false
+  }
+}
+
+case class Ray(origin: Point, direction: Vect) extends Shape {
+  type Self = Ray
+
+  override def +(p: Vect): Ray = Ray(origin + p, direction)
+
+  override def -(p: Vect): Ray = Ray(origin - p, direction)
+
+  override def intersects(other: Shape): Boolean = other match {
+    case p: Point ⇒ contains(p)
+    case b: BoundingBox ⇒ Collider(b, this)
+    case c: Circle ⇒ Collider(c, this)
+    case r: Ray ⇒ Collider(this, r)
+  }
+
+  override def contains(point: Point): Boolean = {
+    val dist = origin distanceTo point
+    dist == (dist project direction)
+  }
+
+  override lazy val bounds: BoundingBox = {
+    val outerx = origin.x + direction.x
+    val outery = origin.y + direction.y
+
+    if (direction.x > 0) {
+      if (direction.y > 0) BoundingBox(origin, Point(outerx, outery))
+      else BoundingBox(Point(origin.x, outery), Point(outerx, origin.y))
+    }
+    else {
+      if (direction.y > 0) BoundingBox(Point(outerx, origin.y), Point(origin.x, outery))
+      else BoundingBox(Point(outerx, outery), origin)
+    }
   }
 }
