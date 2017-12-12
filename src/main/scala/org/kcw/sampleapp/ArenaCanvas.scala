@@ -35,9 +35,10 @@ class ArenaCanvas extends Canvas with sprite.World {
   val o1 = new SpOb(spritesheets("asteroid1"), Point(175.5, 30.5), 27)
   val o2 = new SpOb(spritesheets("asteroid2"), Point(20, 87), 20)
   val o3 = new SpOb(spritesheets("asteroid3"), Point(280, 195), 13)
+  val fighter = new SpObR(spritesheets("fighter"), Point(140, 170), 15, 33)
 
   private var spatialMap: SpatialMap[SpOb] = SpatialMap(
-    SpatialMapContext(300, 300, 60), o1, o2, o3)
+    SpatialMapContext(300, 300, 60), o1, o2, o3, fighter)
 
   setMinimumSize(new Dimension(300, 300))
   setPreferredSize(new Dimension(300, 300))

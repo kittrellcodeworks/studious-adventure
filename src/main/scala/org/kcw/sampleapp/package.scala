@@ -4,7 +4,7 @@ import java.awt.{Color, Toolkit}
 import java.awt.event.{MouseAdapter, MouseEvent}
 
 import org.kcw.physics._
-import org.kcw.sprite.{OutlineCircle, Sprite, SpriteSheet}
+import org.kcw.sprite.{OutlineCircle, Rotation, Sprite, SpriteSheet}
 
 package object sampleapp {
 
@@ -21,6 +21,13 @@ package object sampleapp {
   class SpOb(override val spriteSheet: SpriteSheet, start: Point, r: Double) extends SpatialObject with Sprite {
     var shape: Shape = Circle(start, r)
     //override val outline: Option[OutlineCircle] = Some(OutlineCircle(Color.BLACK, r.toInt))
+    override def x: Int = shape.asInstanceOf[Circle].origin.x.toInt
+    override def y: Int = shape.asInstanceOf[Circle].origin.y.toInt
+  }
+
+  class SpObR(spriteSheet: SpriteSheet, start: Point, r: Double, rot: Int) extends SpOb(spriteSheet, start, r) with Rotation {
+    var rotation: Int = rot
+    override val outline: Option[OutlineCircle] = Some(OutlineCircle(Color.BLACK, r.toInt))
     override def x: Int = shape.asInstanceOf[Circle].origin.x.toInt
     override def y: Int = shape.asInstanceOf[Circle].origin.y.toInt
   }
